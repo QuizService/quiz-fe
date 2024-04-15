@@ -13,27 +13,25 @@ import {
 } from '@coreui/react'
 
 const MultipleChoiceForm = () => {
-  const [result, setResult] = useState([
-    {
-      id: 'mul_' + 0,
-      value: (
-        <>
+  const [result, setResult] = useState({
+    id: 'mul_' + 0,
+    value: (
+      <>
+        <CInputGroupText>
           <CInputGroupText>
-            <CInputGroupText>
-              <CFormCheck type="checkbox" value="" aria-label="Checkbox for following text input" />
-            </CInputGroupText>
+            <CFormCheck type="checkbox" value="" aria-label="Checkbox for following text input" />
           </CInputGroupText>
-          <CFormInput aria-label="Text input with radio button" />
-        </>
-      ),
-    },
-  ])
+        </CInputGroupText>
+        <CFormInput aria-label="Text input with radio button" />
+      </>
+    ),
+  })
 
   const btnClick = () => {
     setResult([
       ...result,
       {
-        id: 'mul_' + result.length,
+        id: result.length,
         value: (
           <>
             <CInputGroupText>

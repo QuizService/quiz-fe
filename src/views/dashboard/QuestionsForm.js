@@ -12,13 +12,44 @@ import {
   CFormTextarea,
 } from '@coreui/react'
 
-import MultipleChoiceForm from './questionForm/MultipleChoiceForm'
-
 const QuestionForm = () => {
   let [question, setQuestion] = useState('')
 
+  const [multipleChoiceForm, setMultipleChoiceForm] = useState({
+    id: 'mul_' + 0,
+    value: (
+      <>
+        <CInputGroupText>
+          <CInputGroupText>
+            <CFormCheck type="checkbox" value="" aria-label="Checkbox for following text input" />
+          </CInputGroupText>
+        </CInputGroupText>
+        <CFormInput aria-label="Text input with radio button" />
+      </>
+    ),
+  })
+
   const changeQuestions = (event) => {
     setQuestion(event.target.value)
+  }
+
+  const btnClick = () => {
+    setMultipleChoiceForm([
+      ...multipleChoiceForm,
+      {
+        id: multipleChoiceForm.length,
+        value: (
+          <>
+            <CInputGroupText>
+              <CInputGroupText>
+                <CFormCheck type="checkbox" aria-label="Checkbox for following text input" />
+              </CInputGroupText>
+            </CInputGroupText>
+            <CFormInput aria-label="Text input with radio button" />
+          </>
+        ),
+      },
+    ])
   }
 
   return (
@@ -35,7 +66,7 @@ const QuestionForm = () => {
           </CFormSelect>
         </CCol>
         {question === '' && <></>}
-        {question === 'M' && <MultipleChoiceForm />}
+        {/* {question === 'M' && } */}
         {question === 'S' && Short()}
       </CForm>
     </>
