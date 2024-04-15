@@ -1,18 +1,13 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "App";
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
+import 'core-js'
 
-// Material Dashboard 2 React Context Provider
-import { MaterialUIControllerProvider } from "context";
+import App from './App'
+import store from './store'
 
-const container = document.getElementById("app");
-const root = createRoot(container);
-
-root.render(
-  <BrowserRouter>
-    <MaterialUIControllerProvider>
-      <App />
-    </MaterialUIControllerProvider>
-  </BrowserRouter>
-);
+createRoot(document.getElementById('root')).render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+)
