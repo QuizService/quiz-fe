@@ -11,45 +11,39 @@ import {
   CButton,
   CFormTextarea,
 } from '@coreui/react'
+import MultipleChoiceForm from '../dashboard/questionForm/MultipleChoiceForm'
 
-const QuestionForm = () => {
+const QuestionForm = (props) => {
   let [question, setQuestion] = useState('')
-
-  const [multipleChoiceForm, setMultipleChoiceForm] = useState({
-    id: 'mul_' + 0,
-    value: (
-      <>
-        <CInputGroupText>
-          <CInputGroupText>
-            <CFormCheck type="checkbox" value="" aria-label="Checkbox for following text input" />
-          </CInputGroupText>
-        </CInputGroupText>
-        <CFormInput aria-label="Text input with radio button" />
-      </>
-    ),
-  })
+  const [answers, setAnswers] = useState([])
 
   const changeQuestions = (event) => {
     setQuestion(event.target.value)
   }
 
-  const btnClick = () => {
-    setMultipleChoiceForm([
-      ...multipleChoiceForm,
-      {
-        id: multipleChoiceForm.length,
-        value: (
-          <>
-            <CInputGroupText>
-              <CInputGroupText>
-                <CFormCheck type="checkbox" aria-label="Checkbox for following text input" />
-              </CInputGroupText>
-            </CInputGroupText>
-            <CFormInput aria-label="Text input with radio button" />
-          </>
-        ),
-      },
-    ])
+  const changeAnswer = (event) => {
+    console.log(event.target.value)
+    const answer = {
+      questionType: 'S',
+      choices: [],
+      answer: event.target.value,
+    }
+
+    props.onValueChange(answer, props.idx)
+  }
+
+  const shortAnswerForm = (
+    <CFormTextarea label="Write your Answer" rows={3} onChange={changeAnswer}></CFormTextarea>
+  )
+
+  const handleValueChange = (data) => {
+    setAnswers(data)
+    const answer = {
+      questionType: 'M',
+      choices: answers,
+      answer: '',
+    }
+    props.onValueChange(answer, props.idx)
   }
 
   return (
@@ -66,15 +60,11 @@ const QuestionForm = () => {
           </CFormSelect>
         </CCol>
         {question === '' && <></>}
-        {/* {question === 'M' && } */}
-        {question === 'S' && Short()}
+        {question === 'M' && <MultipleChoiceForm onValueChange={handleValueChange} />}
+        {question === 'S' && shortAnswerForm}
       </CForm>
     </>
   )
-}
-
-function Short() {
-  return <CFormTextarea label="Write your Answer" rows={3}></CFormTextarea>
 }
 
 export default QuestionForm
