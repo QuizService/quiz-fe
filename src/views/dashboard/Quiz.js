@@ -14,56 +14,67 @@ import QuestionForm from './QuestionsForm'
 
 const Quiz = () => {
   const id = useRef(1)
-  const [questions, setQuestions] = useState([])
+  const [question, setQuestion] = useState([
+    {
+      id: 0,
+      value: { title: '', score: 0, sequence: 0, questionType: '', choices: [], answer: '' },
+    },
+  ])
+  const [quizForm, setQuizForm] = useState([
+    {
+      id: 0,
+      value: <QuestionForm setQuestion={setQuestion} question={question} id={0} />,
+    },
+  ])
 
-  const [quizForm, setQuizForm] = useState([])
-
-  const addForm = () => {
+  const addForm = async () => {
     const idx = id.current
-    setQuizForm([
-      ...quizForm,
+
+    await addQuestions(idx)
+    await addQuizForm(idx)
+    await plusId()
+    console.log(question)
+  }
+
+  const addQuestions = async (idx) => {
+    setQuestion((prevQuestion) => [
+      ...prevQuestion,
       {
         id: idx,
-        value: <QuestionForm onValueChange={handleValueChange} idx={idx} />,
+        value: { title: '', score: 0, sequence: 0, questionType: '', choices: [], answer: '' },
       },
     ])
+  }
 
-    setQuestions([
-      ...questions,
-      {
-        id: idx + 1,
-        value: { sequence: questions.length, questionType: '', choices: [], answer: '' },
-      },
-    ])
+  const plusId = async () => {
     id.current += 1
-    console.log(questions)
-    console.log(quizForm)
   }
 
-  const handleValueChange = (data, idx) => {
-    let findIdx = questions.findIndex((item) => {
-      console.log(item.id)
-      return item.id === idx
-    })
-    let copiedArr = [...questions]
-
-    const result = {
-      sequence: findIdx,
-      questionType: data.questionType,
-      choices: data.choices,
-      answer: data.answer,
-    }
-
-    console.log(findIdx)
-    console.log(idx)
-    copiedArr[findIdx].value = result
-    setQuestions(copiedArr)
-    console.log(questions)
+  const addQuizForm = async (idx) => {
+    setQuizForm((prevQuizForm) => [
+      ...prevQuizForm,
+      {
+        id: idx,
+        value: <QuestionForm setQuestion={setQuestion} question={question} id={idx} />,
+      },
+    ])
   }
 
-  const removeForm = (idxToRemove) => {
-    setQuizForm((prevForm) => prevForm.filter((item) => item.id !== idxToRemove))
-    setQuestions((question) => question.filter((item) => item.id !== idxToRemove))
+  const removeForm = async (idxToRemove) => {
+    await removeQuestion(idxToRemove)
+    await removeQuizForm(idxToRemove)
+  }
+
+  const removeQuestion = async (idx) => {
+    setQuestion((prev) => prev.filter((item) => item.id !== idx))
+  }
+
+  const removeQuizForm = async (idx) => {
+    setQuizForm((prevForm) => prevForm.filter((item) => item.id !== idx))
+  }
+
+  const submit = () => {
+    console.log(question)
   }
 
   return (
@@ -81,6 +92,9 @@ const Quiz = () => {
         <CButton color="primary" onClick={addForm}>
           {' '}
           +{' '}
+        </CButton>
+        <CButton color="primary" onClick={submit}>
+          submit
         </CButton>
       </CForm>
     </>

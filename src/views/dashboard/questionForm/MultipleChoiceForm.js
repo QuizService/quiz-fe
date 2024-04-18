@@ -7,33 +7,11 @@ import {
   CFormInput,
   CInputGroupText,
   CFormCheck,
-  CFormSelect,
   CButton,
-  CFormTextarea,
 } from '@coreui/react'
 
-const MultipleChoiceForm = ({ onValueChange }) => {
+const MultipleChoiceForm = () => {
   const [choices, setChoices] = useState([{ id: 0, answer: false, value: '' }])
-
-  const handleChange = (event, idx) => {
-    const value = event.target.value
-    setChoices((prevChoices) => {
-      const updatedChoices = [...prevChoices]
-      updatedChoices[idx] = { ...updatedChoices[idx], value }
-      return updatedChoices
-    })
-    onValueChange(choices)
-  }
-
-  const handleCheck = (event, idx) => {
-    const answer = event.target.checked
-    setChoices((prevChoices) => {
-      const updatedChoices = [...prevChoices]
-      updatedChoices[idx] = { ...updatedChoices[idx], answer }
-      return updatedChoices
-    })
-    onValueChange(choices)
-  }
 
   const btnClick = () => {
     setChoices((prevChoices) => [
@@ -42,18 +20,14 @@ const MultipleChoiceForm = ({ onValueChange }) => {
     ])
   }
 
-  const handleSubmit = () => {
-    onValueChange(choices)
-  }
-
   return (
     <CCol>
       {choices.map((item, idx) => (
         <CInputGroup className="mb-3" key={idx}>
           <CInputGroupText>
-            <CFormCheck type="checkbox" onChange={(e) => handleCheck(e, idx)} />
+            <CFormCheck type="checkbox" />
           </CInputGroupText>
-          <CFormInput onChange={(e) => handleChange(e, idx)} />
+          <CFormInput />
         </CInputGroup>
       ))}
       <CButton color="primary" onClick={btnClick}>
