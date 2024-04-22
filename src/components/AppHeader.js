@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import {
@@ -13,17 +13,51 @@ import {
   CNavLink,
   CNavItem,
   useColorModes,
+  CModal,
+  CModalHeader,
+  CModalTitle,
+  CModalBody,
+  CModalFooter,
+  CFormInput,
+  CButton,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilContrast, cilMoon, cilSun } from '@coreui/icons'
 import { logo } from 'src/assets/brand/logo'
 import { AppHeaderDropdown } from './header/index'
+import { useLocation } from 'react-router-dom'
 
 const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
+  const location = useLocation()
   const dispatch = useDispatch()
+
+  const [visible, setVisible] = useState(false)
+  const [title, setTitle] = useState('')
+  const [capacity, setCapacity] = useState(0)
+  const [startDate, setStartDate] = useState('')
+  const [dueDate, setDueDate] = useState('')
+
+  const changeTitle = (e) => {
+    console.log(e.target.value)
+    setTitle(e.target.value)
+  }
+  const changeCapacity = (e) => {
+    setCapacity(e.target.value)
+  }
+  const changeStartDate = (e) => {
+    setStartDate(e.target.value)
+  }
+  const changeDueDate = (e) => {
+    setDueDate(e.target.value)
+  }
+
+  const createQuiz = () => {
+    console.log('save quiz')
+    setVisible(false)
+  }
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -39,9 +73,13 @@ const AppHeader = () => {
           <CIcon icon={logo} height={32} />
         </CNavLink>
         <CHeaderNav className="d-none d-md-flex">
-          <CNavItem>
-            <CNavLink href="/quiz">퀴즈 생성</CNavLink>
-          </CNavItem>
+          <CButton color="secondary" variant="ghost">
+            {location.pathname === '/dashboard' && (
+              <CNavLink href="#" onClick={() => setVisible(!visible)}>
+                퀴즈 생성
+              </CNavLink>
+            )}
+          </CButton>
         </CHeaderNav>
         <CHeaderNav className="ms-auto"></CHeaderNav>
         <CHeaderNav>
@@ -95,6 +133,51 @@ const AppHeader = () => {
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
+      <CModal
+        visible={visible}
+        onClose={() => setVisible(false)}
+        aria-labelledby="LiveDemoExampleLabel"
+      >
+        <CModalHeader onClose={() => setVisible(false)}></CModalHeader>
+        <CModalBody>
+          <CFormInput
+            type="text"
+            id="title"
+            label="title"
+            onChange={changeTitle}
+            aria-describedby="exampleFormControlInputHelpInline"
+          />
+          <CFormInput
+            type="text"
+            id="capacity"
+            label="capacity"
+            onChange={changeCapacity}
+            aria-describedby="exampleFormControlInputHelpInline"
+          />
+          <CFormInput
+            type="date"
+            id="startDate"
+            label="startDate"
+            onChange={changeStartDate}
+            aria-describedby="exampleFormControlInputHelpInline"
+          />
+          <CFormInput
+            type="date"
+            id="dueDate"
+            label="dueDate"
+            onChange={changeDueDate}
+            aria-describedby="exampleFormControlInputHelpInline"
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Close
+          </CButton>
+          <CButton color="primary" onClick={(e) => createQuiz(e)}>
+            Save changes
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CHeader>
   )
 }
