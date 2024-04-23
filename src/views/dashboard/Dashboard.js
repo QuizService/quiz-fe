@@ -94,6 +94,15 @@ const Dashboard = () => {
     })
   }
 
+  const editQuestion = (e, quizId) => {
+    console.log(quizId)
+    navigate('/quiz-edit', {
+      state: {
+        quizId: quizId,
+      },
+    })
+  }
+
   const changeTitle = (e) => {
     console.log(e.target.value)
     setTitle(e.target.value)
@@ -128,8 +137,11 @@ const Dashboard = () => {
                     <CDropdownItem href="#" onClick={(e) => openQuizModal(e, item)}>
                       퀴즈 업데이트
                     </CDropdownItem>
-                    <CDropdownItem onClick={(e) => createQuestion(e, item.quizId)}>
+                    <CDropdownItem href="#" onClick={(e) => createQuestion(e, item.quizId)}>
                       문제 생성
+                    </CDropdownItem>
+                    <CDropdownItem onClick={(e) => editQuestion(e, item.quizId)}>
+                      문제 업데이트
                     </CDropdownItem>
                   </CDropdownMenu>
                 </CDropdown>

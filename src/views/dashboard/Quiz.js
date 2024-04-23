@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import {
   CCol,
@@ -18,6 +18,7 @@ const Quiz = () => {
   const [quizForm, setQuizForm] = useState([])
   const [questionType, setQuestionType] = useState([])
   const location = useLocation()
+  const [checkArr, setCheckArr] = useState([[false, false]])
 
   const quizId = { ...location.state }
 
@@ -39,6 +40,7 @@ const Quiz = () => {
       },
     ])
     setQuestionType((type) => [...type, ''])
+    setCheckArr([false, false, false, false, false])
   }
 
   const handleQuestionType = (e, idx) => {
