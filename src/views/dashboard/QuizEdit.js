@@ -25,12 +25,11 @@ import {
   CFormTextarea,
 } from '@coreui/react'
 
-import CIcon from '@coreui/icons-react'
-import { cilOptions } from '@coreui/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { array } from 'prop-types'
 
 const QuizEdit = () => {
+  const navigate = useNavigate()
   const { state } = useLocation()
   const { quizId } = state
 
@@ -323,7 +322,9 @@ const QuizEdit = () => {
         <CModalHeader onClose={() => setVisible(false)}></CModalHeader>
         <CModalBody>Are you sure to exit? All changes will be lost!</CModalBody>
         <CModalFooter>
-          <CButton color="danger">yes</CButton>
+          <CButton color="danger" onClick={() => navigate('/dashboard')}>
+            yes
+          </CButton>
           <CButton color="secondary" onClick={() => setVisible(false)}>
             no
           </CButton>

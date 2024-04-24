@@ -39,11 +39,46 @@ const Dashboard = () => {
   const titleArr = ['title1', 'title2', 'title3', 'title4', 'title5', 'title6']
 
   const quizArr = [
-    { quizId: 1, capacity: 10, title: 'title1', startDate: '2024-10-01', dueDate: '2024-10-31' },
-    { quizId: 2, capacity: 10, title: 'title1', startDate: '2024-10-01', dueDate: '2024-10-31' },
-    { quizId: 3, capacity: 10, title: 'title1', startDate: '2024-10-01', dueDate: '2024-10-31' },
-    { quizId: 4, capacity: 10, title: 'title1', startDate: '2024-10-01', dueDate: '2024-10-31' },
-    { quizId: 5, capacity: 10, title: 'title1', startDate: '2024-10-01', dueDate: '2024-10-31' },
+    {
+      quizId: 1,
+      capacity: 10,
+      title: 'title1',
+      startDate: '2024-10-01',
+      dueDate: '2024-10-31',
+      isQuestionsCreated: false,
+    },
+    {
+      quizId: 2,
+      capacity: 10,
+      title: 'title1',
+      startDate: '2024-10-01',
+      dueDate: '2024-10-31',
+      isQuestionsCreated: true,
+    },
+    {
+      quizId: 3,
+      capacity: 10,
+      title: 'title1',
+      startDate: '2024-10-01',
+      dueDate: '2024-10-31',
+      isQuestionsCreated: true,
+    },
+    {
+      quizId: 4,
+      capacity: 10,
+      title: 'title1',
+      startDate: '2024-10-01',
+      dueDate: '2024-10-31',
+      isQuestionsCreated: false,
+    },
+    {
+      quizId: 5,
+      capacity: 10,
+      title: 'title1',
+      startDate: '2024-10-01',
+      dueDate: '2024-10-31',
+      isQuestionsCreated: false,
+    },
   ]
 
   const resultArr = []
@@ -137,12 +172,15 @@ const Dashboard = () => {
                     <CDropdownItem href="#" onClick={(e) => openQuizModal(e, item)}>
                       퀴즈 업데이트
                     </CDropdownItem>
-                    <CDropdownItem href="#" onClick={(e) => createQuestion(e, item.quizId)}>
-                      문제 생성
-                    </CDropdownItem>
-                    <CDropdownItem onClick={(e) => editQuestion(e, item.quizId)}>
-                      문제 업데이트
-                    </CDropdownItem>
+                    {item.isQuestionsCreated === true ? (
+                      <CDropdownItem href="#" onClick={(e) => createQuestion(e, item.quizId)}>
+                        문제 생성
+                      </CDropdownItem>
+                    ) : (
+                      <CDropdownItem onClick={(e) => editQuestion(e, item.quizId)}>
+                        문제 업데이트
+                      </CDropdownItem>
+                    )}
                   </CDropdownMenu>
                 </CDropdown>
               </CCardBody>

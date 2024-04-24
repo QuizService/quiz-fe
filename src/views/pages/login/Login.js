@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { GoogleLogin, GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google'
 import {
   CButton,
   CCard,
@@ -15,8 +16,35 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import axios from 'axios'
 
 const Login = () => {
+  const clientId = import.meta.env.VITE_CLIENT_ID
+
+  const GoogleLogin = () => {
+    const googleLogin = useGoogleLogin({
+      scope: 'email profile',
+      onSuccess: async ({ code }) => {
+        axios
+          .get('https://accounts.google.com/o/oauth2/v2/auth', { code })
+          .then(({ data }) => console.log(data))
+          .catch((error) => {
+            console.log(error)
+          })
+      },
+      onError: (error) => {
+        console.log(error)
+      },
+      flow: 'auth-code',
+    })
+
+    return (
+      <CButton color="primary" onClick={() => googleLogin()}>
+        Google Login
+      </CButton>
+    )
+  }
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -28,51 +56,10 @@ const Login = () => {
                   <CForm>
                     <h1>Login</h1>
                     <p className="text-body-secondary">Sign In to your account</p>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        type="password"
-                        placeholder="Password"
-                        autoComplete="current-password"
-                      />
-                    </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton color="primary" className="px-4">
-                          Login
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
-                        </CButton>
-                      </CCol>
-                    </CRow>
+                    <GoogleOAuthProvider clientId={clientId}>
+                      <GoogleLogin />
+                    </GoogleOAuthProvider>
                   </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
                 </CCardBody>
               </CCard>
             </CCardGroup>
