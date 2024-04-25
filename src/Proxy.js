@@ -8,8 +8,9 @@ module.exports = function (app) {
     }),
   )
   app.use(
+    '/o/oauth2/v2/auth',
     createProxyMiddleware({
-      target: 'https://accounts.google.com/o/oauth2/v2/auth',
+      target: 'https://accounts.google.com',
       changeOrigin: true,
     }),
   )
