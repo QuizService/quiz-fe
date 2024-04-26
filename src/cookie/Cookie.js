@@ -15,11 +15,11 @@ export const removeCookie = (name) => {
 }
 
 export const setTokenAtCookies = (accessToken, refreshToken) => {
-  cookies.set('Authorization', accessToken.Authorization, {
+  cookies.set('Authorization', accessToken, {
     secure: true,
     maxAge: 3600, // 1hour
   })
-  cookies.set('Refresh', refreshToken.Refresh, {
+  cookies.set('Refresh', refreshToken, {
     secure: true,
     maxAge: 1209600, //2 week
   })

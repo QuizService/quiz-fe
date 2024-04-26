@@ -9,7 +9,7 @@ export default function GoogleLogin({ onGoogleSignIn = () => {}, text = 'signin_
       callback: onGoogleSignIn,
     })
     window.google.accounts.id.renderButton(googleSignInButton.current, {
-      theme: 'fill_black',
+      theme: 'filled_black',
       size: 'large',
       text,
       width: '250',

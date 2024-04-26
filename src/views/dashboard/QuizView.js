@@ -122,6 +122,7 @@ const QuizView = () => {
     }
     setAnswers(answersArr)
     setCheckArr(checkedArr)
+    console.log(checkedArr)
   }, [])
 
   const isChecked = (e, idx, id) => {
@@ -194,7 +195,7 @@ const QuizView = () => {
           <CCol>dueDate : {quiz.dueDate}</CCol>
         </CCallout>
         {questions.map((item, idx) => (
-          <CCard key={item.questionId}>
+          <CCard key={`question-${item.questionId}`}>
             <CCardBody>
               <CCardTitle>{item.title}</CCardTitle>
               <CCardSubtitle className="mb-2 text-body-secondary">
@@ -203,16 +204,16 @@ const QuizView = () => {
               {item.questionType === 'M' ? (
                 <CCol>
                   {item.choicesResponseDtos.map((item, id) => (
-                    <CInputGroup className="mb-3" key={id}>
+                    <CInputGroup className="mb-3" key={`choice-${id}`}>
                       <CInputGroupText>
                         <CFormCheck
                           type="checkbox"
-                          name={id}
+                          name={`checked${idx}-${id}`}
                           checked={checkArr[idx][id]}
                           onChange={(e) => isChecked(e, idx, id)}
                         />
                       </CInputGroupText>
-                      <CFormInput name={id} defaultValue={item.title} readOnly />
+                      <CFormInput name={`title:${idx}-${id}`} defaultValue={item.title} readOnly />
                     </CInputGroup>
                   ))}
                 </CCol>
