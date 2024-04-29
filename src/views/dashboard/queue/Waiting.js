@@ -81,8 +81,8 @@ const Waiting = () => {
 
       const userTurn = jsonBody.isUsersTurn
       if (userTurn) {
-        navigate(`/quiz-view/${endpoint}`)
         disconnect()
+        navigate(`/quiz-view/${endpoint}`)
       }
     }
 

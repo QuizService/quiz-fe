@@ -24,6 +24,8 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilOptions } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
+import Pagination from '../pagination/Pagination'
+import { api } from '../../config/CustomAxios'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -35,8 +37,9 @@ const Dashboard = () => {
     startDate: '',
     dueDate: '',
   })
-
-  const titleArr = ['title1', 'title2', 'title3', 'title4', 'title5', 'title6']
+  const [currentPage, setCurrentPage] = useState(1)
+  const [size, setSize] = useState(10)
+  const [totalPages, setTotalPages] = useState(1)
 
   const quizArr = [
     {
@@ -84,10 +87,31 @@ const Dashboard = () => {
   const resultArr = []
   const [result, setResult] = useState([])
   useEffect(() => {
-    for (let i = 0; i < quizArr.length; i++) {
-      resultArr.push(quizArr[i])
+    const getQuizList = async () => {
+      const res = await api.get(`/api/v1/quiz?page=${currentPage}&size=${size}`)
+      if (res.status != 200) {
+        console.log(res.error)
+        return
+      }
+      const quizList = res.data.data.data
+      const pageInfo = res.data.data.pageInfo
+      for (let i = 0; i < quizList.length; i++) {
+        const quiz = {
+          quizId: quizList[i].quizId,
+          title: quizList[i].title,
+          capacity: quizList[i].capacity,
+          maxScore: typeof quizList[i].maxScore === 'undefined' ? 0 : quizList[i].maxScore,
+          startDate: quizList[i].startDate,
+          dueDate: quizList[i].dueDate,
+        }
+        resultArr.push(quiz)
+      }
+      setResult(resultArr)
+      setCurrentPage(pageInfo.page)
+      setSize(pageInfo.size)
+      setTotalPages(pageInfo.totalPages)
     }
-    setResult(resultArr)
+    getQuizList()
   }, [])
 
   const [title, setTitle] = useState('')
@@ -161,8 +185,10 @@ const Dashboard = () => {
               <CCardBody>
                 <CCardTitle>{item.title}</CCardTitle>
                 <CCardText>
-                  <CCol>{`startDate : ${item.startDate}`}</CCol>
-                  <CCol>{`dueDate : ${item.dueDate}`}</CCol>
+                  <CCol>{`참가 가능 인원 : ${item.capacity}`}</CCol>
+                  <CCol>{`점수 : ${item.maxScore}`}</CCol>
+                  <CCol>{`시작날짜 : ${item.startDate}`}</CCol>
+                  <CCol>{`마감날짜 : ${item.dueDate}`}</CCol>
                 </CCardText>
                 <CDropdown alignment={{ lg: 'end' }}>
                   <CDropdownToggle color="transparent" caret={false}>
@@ -197,7 +223,7 @@ const Dashboard = () => {
             <CFormInput
               type="text"
               id="title"
-              label="title"
+              label="제목"
               defaultValue={quizModal.title}
               onChange={changeTitle}
               aria-describedby="exampleFormControlInputHelpInline"
@@ -205,7 +231,7 @@ const Dashboard = () => {
             <CFormInput
               type="text"
               id="capacity"
-              label="capacity"
+              label="참가 가능 인원"
               defaultValue={quizModal.capacity}
               onChange={changeCapacity}
               aria-describedby="exampleFormControlInputHelpInline"
@@ -213,7 +239,7 @@ const Dashboard = () => {
             <CFormInput
               type="date"
               id="startDate"
-              label="startDate"
+              label="시작날짜"
               defaultValue={quizModal.startDate}
               onChange={changeStartDate}
               aria-describedby="exampleFormControlInputHelpInline"
@@ -221,7 +247,7 @@ const Dashboard = () => {
             <CFormInput
               type="date"
               id="dueDate"
-              label="dueDate"
+              label="마감날짜"
               defaultValue={quizModal.dueDate}
               onChange={changeDueDate}
               aria-describedby="exampleFormControlInputHelpInline"
@@ -236,6 +262,15 @@ const Dashboard = () => {
             </CButton>
           </CModalFooter>
         </CModal>
+      </CRow>
+      <br />
+      <CRow>
+        <Pagination
+          page={currentPage}
+          size={size}
+          totalPages={totalPages}
+          paginate={setCurrentPage}
+        ></Pagination>
       </CRow>
     </>
   )

@@ -35,29 +35,29 @@ const AppHeader = () => {
   const dispatch = useDispatch()
 
   const [visible, setVisible] = useState(false)
-  const [title, setTitle] = useState('')
-  const [capacity, setCapacity] = useState(0)
-  const [startDate, setStartDate] = useState('')
-  const [dueDate, setDueDate] = useState('')
+  // const [title, setTitle] = useState('')
+  // const [capacity, setCapacity] = useState(0)
+  // const [startDate, setStartDate] = useState('')
+  // const [dueDate, setDueDate] = useState('')
 
-  const changeTitle = (e) => {
-    console.log(e.target.value)
-    setTitle(e.target.value)
-  }
-  const changeCapacity = (e) => {
-    setCapacity(e.target.value)
-  }
-  const changeStartDate = (e) => {
-    setStartDate(e.target.value)
-  }
-  const changeDueDate = (e) => {
-    setDueDate(e.target.value)
-  }
+  // const changeTitle = (e) => {
+  //   console.log(e.target.value)
+  //   setTitle(e.target.value)
+  // }
+  // const changeCapacity = (e) => {
+  //   setCapacity(e.target.value)
+  // }
+  // const changeStartDate = (e) => {
+  //   setStartDate(e.target.value)
+  // }
+  // const changeDueDate = (e) => {
+  //   setDueDate(e.target.value)
+  // }
 
-  const createQuiz = () => {
-    console.log('save quiz')
-    setVisible(false)
-  }
+  // const createQuiz = () => {
+  //   console.log('save quiz')
+  //   setVisible(false)
+  // }
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -133,7 +133,7 @@ const AppHeader = () => {
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      <CModal
+      {/* <CModal
         visible={visible}
         onClose={() => setVisible(false)}
         aria-labelledby="LiveDemoExampleLabel"
@@ -177,7 +177,7 @@ const AppHeader = () => {
             Save changes
           </CButton>
         </CModalFooter>
-      </CModal>
+      </CModal> */}
     </CHeader>
   )
 }
