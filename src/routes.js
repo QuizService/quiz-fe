@@ -14,8 +14,8 @@ const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   // { path: '/quiz', name: 'Quiz', element: Quiz },
   { path: '/quiz-view/:endpoint', name: 'QuizView', element: QuizView },
-  { path: '/quiz-edit', name: 'QuizEdit', element: QuizEdit },
-  { path: '/quiz', name: 'Quiz', element: Quiz },
+  { path: '/quiz-edit/:quizId', name: 'QuizEdit', element: QuizEdit },
+  { path: '/quiz/:quizId', name: 'Quiz', element: Quiz },
   { path: '/wait/:endpoint', name: 'Waiting', element: Waiting },
 ]
 

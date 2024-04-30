@@ -10,17 +10,33 @@ import {
   CFormSelect,
   CButton,
   CFormTextarea,
+  CCallout,
 } from '@coreui/react'
-import QuestionForm from './QuestionsForm'
-import { useLocation } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { api } from '../../config/CustomAxios'
 
 const Quiz = () => {
+  const [quizInfo, setQuizInfo] = useState({})
   const [quizForm, setQuizForm] = useState([])
   const [questionType, setQuestionType] = useState([])
-  const location = useLocation()
-  const [checkArr, setCheckArr] = useState([[false, false]])
+  const navigate = useNavigate()
 
-  const quizId = { ...location.state }
+  const params = useParams()
+  const quizId = params.quizId
+
+  useEffect(() => {
+    const getQuizInfo = async () => {
+      try {
+        const res = await api.get(`/api/v1/quiz/${quizId}`)
+        const quizData = res.data.data
+        console.log(quizData)
+        setQuizInfo(quizData)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getQuizInfo()
+  }, [])
 
   const addForm = () => {
     setQuizForm((quiz) => [
@@ -30,17 +46,16 @@ const Quiz = () => {
         score: 0,
         questionType: '',
         choices: [
-          { id: 0, isAnswer: 'off', value: '' },
-          { id: 1, isAnswer: 'off', value: '' },
-          { id: 2, isAnswer: 'off', value: '' },
-          { id: 3, isAnswer: 'off', value: '' },
-          { id: 4, isAnswer: 'off', value: '' },
+          { sequence: 1, title: '', isAnswer: false },
+          { sequence: 2, title: '', isAnswer: false },
+          { sequence: 3, title: '', isAnswer: false },
+          { sequence: 4, title: '', isAnswer: false },
+          { sequence: 5, title: '', isAnswer: false },
         ],
         answer: '',
       },
     ])
     setQuestionType((type) => [...type, ''])
-    setCheckArr([false, false, false, false, false])
   }
 
   const handleQuestionType = (e, idx) => {
@@ -56,9 +71,23 @@ const Quiz = () => {
     )
   }
 
+  const editCheck = (e, id, idx) => {
+    const { name, checked } = e.target
+
+    const newQuizForm = quizForm.map((item, index) => {
+      if (index === idx) {
+        const newChoices = item.choices.map((it, i) => (i === id ? { ...it, [name]: checked } : it))
+        return { ...item, choices: newChoices }
+      } else {
+        return item
+      }
+    })
+    setQuizForm(newQuizForm)
+  }
+
   const editChoice = (e, id, idx) => {
     const { name, value } = e.target
-    console.log(value)
+    console.log(name)
 
     const newQuizForm = quizForm.map((item, index) => {
       if (index === idx) {
@@ -77,13 +106,41 @@ const Quiz = () => {
     setQuizForm(newQuizForm)
   }
 
-  const submit = () => {
-    console.log(questionType)
-    console.log(quizForm)
+  const submit = async () => {
+    const questionList = []
+
+    quizForm.forEach((item, idx) => {
+      questionList.push({
+        title: item.title,
+        score: item.score,
+        sequence: idx + 1,
+        questionType: item.questionType,
+        choices: item.choices,
+        answer: item.answer,
+      })
+    })
+
+    try {
+      const questionIntegratedDto = {
+        questionRequestDtos: questionList,
+      }
+      const res = await api.post(`/api/v1/questions/${quizId}`, questionIntegratedDto)
+      console.log(res)
+      await navigate('/dashboard')
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return (
     <>
+      <CCallout color="primary">
+        <h3>{quizInfo.title}</h3>
+        <hr />
+        <CCol>최대 참여 가능 인원 : {quizInfo.capacity}</CCol>
+        <CCol>시작날짜 : {quizInfo.startDate}</CCol>
+        <CCol>마감날짜 : {quizInfo.dueDate}</CCol>
+      </CCallout>
       {quizForm.map((item, idx) => (
         <div key={item}>
           <CForm className="row g-3">
@@ -120,10 +177,11 @@ const Quiz = () => {
                         type="checkbox"
                         id={`${id}`}
                         name="isAnswer"
-                        onChange={(e) => editChoice(e, id, idx)}
+                        checked={item.isAnswer}
+                        onChange={(e) => editCheck(e, id, idx)}
                       />
                     </CInputGroupText>
-                    <CFormInput name="value" onChange={(e) => editChoice(e, id, idx)} />
+                    <CFormInput name="title" onChange={(e) => editChoice(e, id, idx)} />
                   </CInputGroup>
                 ))}
               </CCol>

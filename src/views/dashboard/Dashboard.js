@@ -15,10 +15,10 @@ import {
   CCol,
   CModal,
   CModalHeader,
-  CModalTitle,
   CModalBody,
   CModalFooter,
   CFormInput,
+  CCardHeader,
 } from '@coreui/react'
 
 import CIcon from '@coreui/icons-react'
@@ -36,83 +36,44 @@ const Dashboard = () => {
     title: '',
     startDate: '',
     dueDate: '',
+    isQuestionsCreated: false,
   })
   const [currentPage, setCurrentPage] = useState(1)
   const [size, setSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
 
-  const quizArr = [
-    {
-      quizId: 1,
-      capacity: 10,
-      title: 'title1',
-      startDate: '2024-10-01',
-      dueDate: '2024-10-31',
-      isQuestionsCreated: false,
-    },
-    {
-      quizId: 2,
-      capacity: 10,
-      title: 'title1',
-      startDate: '2024-10-01',
-      dueDate: '2024-10-31',
-      isQuestionsCreated: true,
-    },
-    {
-      quizId: 3,
-      capacity: 10,
-      title: 'title1',
-      startDate: '2024-10-01',
-      dueDate: '2024-10-31',
-      isQuestionsCreated: true,
-    },
-    {
-      quizId: 4,
-      capacity: 10,
-      title: 'title1',
-      startDate: '2024-10-01',
-      dueDate: '2024-10-31',
-      isQuestionsCreated: false,
-    },
-    {
-      quizId: 5,
-      capacity: 10,
-      title: 'title1',
-      startDate: '2024-10-01',
-      dueDate: '2024-10-31',
-      isQuestionsCreated: false,
-    },
-  ]
-
   const resultArr = []
   const [result, setResult] = useState([])
-  useEffect(() => {
-    const getQuizList = async () => {
-      const res = await api.get(`/api/v1/quiz?page=${currentPage}&size=${size}`)
-      if (res.status != 200) {
-        console.log(res.error)
-        return
-      }
-      const quizList = res.data.data.data
-      const pageInfo = res.data.data.pageInfo
-      for (let i = 0; i < quizList.length; i++) {
-        const quiz = {
-          quizId: quizList[i].quizId,
-          title: quizList[i].title,
-          capacity: quizList[i].capacity,
-          maxScore: typeof quizList[i].maxScore === 'undefined' ? 0 : quizList[i].maxScore,
-          startDate: quizList[i].startDate,
-          dueDate: quizList[i].dueDate,
-        }
-        resultArr.push(quiz)
-      }
-      setResult(resultArr)
-      setCurrentPage(pageInfo.page)
-      setSize(pageInfo.size)
-      setTotalPages(pageInfo.totalPages)
+
+  const getQuizList = async () => {
+    console.log(currentPage)
+    const res = await api.get(`/api/v1/quiz?page=${currentPage}&size=${size}`)
+    if (res.status != 200) {
+      console.log(res.error)
+      return
     }
+    const quizList = res.data.data.data
+    const pageInfo = res.data.data.pageInfo
+    for (let i = 0; i < quizList.length; i++) {
+      const quiz = {
+        quizId: quizList[i].quizId,
+        title: quizList[i].title,
+        capacity: quizList[i].capacity,
+        maxScore: typeof quizList[i].maxScore === 'undefined' ? 0 : quizList[i].maxScore,
+        startDate: quizList[i].startDate,
+        dueDate: quizList[i].dueDate,
+        isQuestionsCreated: quizList[i].isQuestionsCreated,
+      }
+      resultArr.push(quiz)
+    }
+    setResult(resultArr)
+    setCurrentPage(pageInfo.page)
+    setSize(pageInfo.size)
+    setTotalPages(pageInfo.totalPages)
+  }
+  useEffect(() => {
     getQuizList()
-  }, [])
+  }, [currentPage])
 
   const [title, setTitle] = useState('')
   const [capacity, setCapacity] = useState(0)
@@ -129,24 +90,36 @@ const Dashboard = () => {
       startDate: quiz.startDate,
       dueDate: quiz.dueDate,
     })
+    setTitle(quiz.title)
+    setCapacity(quiz.capacity)
+    setStartDate(quiz.startDate)
+    setDueDate(quiz.dueDate)
   }
 
-  const updateQuiz = (e, quizId) => {
+  const updateQuiz = async (e, quizId) => {
     console.log('update quiz')
+
     const quiz = {
       quizId: quizId,
-      capacity: capacity === 0 ? quizModal.capacity : capacity,
-      title: title === '' ? quizModal.title : title,
-      startDate: startDate === '' ? quizModal.startDate : startDate,
-      dueDate: dueDate === '' ? quizModal.dueDate : dueDate,
+      capacity: capacity,
+      title: title,
+      startDate: startDate,
+      dueDate: dueDate,
     }
 
-    console.log(quiz)
+    try {
+      const res = await api.patch(`/api/v1/quiz/${quizId}`, quiz)
+      console.log(res.status)
+      await getQuizList()
+    } catch (err) {
+      console.error('error : ', err)
+    }
+
     setVisible(false)
   }
 
   const createQuestion = (e, quizId) => {
-    navigate('/quiz', {
+    navigate(`/quiz/${quizId}`, {
       state: {
         quizId: quizId,
       },
@@ -155,7 +128,7 @@ const Dashboard = () => {
 
   const editQuestion = (e, quizId) => {
     console.log(quizId)
-    navigate('/quiz-edit', {
+    navigate(`/quiz-edit/${quizId}`, {
       state: {
         quizId: quizId,
       },
@@ -170,10 +143,18 @@ const Dashboard = () => {
     setCapacity(e.target.value)
   }
   const changeStartDate = (e) => {
-    setStartDate(e.target.value)
+    const dt = e.target.value
+    const st = dt.split('T')
+    const tmpSt = st[0] + ' ' + st[1] + ':00'
+    console.log(tmpSt)
+    setStartDate(tmpSt)
   }
   const changeDueDate = (e) => {
-    setDueDate(e.target.value)
+    const dt = e.target.value
+    const dd = dt.split('T')
+    const tmpDd = dd[0] + ' ' + dd[1] + ':00'
+    console.log(tmpDd)
+    setDueDate(tmpDd)
   }
 
   return (
@@ -182,14 +163,12 @@ const Dashboard = () => {
         {result.map((item, idx) => (
           <CCol sm={4} href="#" key={idx}>
             <CCard>
+              <CCardHeader>{item.title}</CCardHeader>
               <CCardBody>
-                <CCardTitle>{item.title}</CCardTitle>
-                <CCardText>
-                  <CCol>{`참가 가능 인원 : ${item.capacity}`}</CCol>
-                  <CCol>{`점수 : ${item.maxScore}`}</CCol>
-                  <CCol>{`시작날짜 : ${item.startDate}`}</CCol>
-                  <CCol>{`마감날짜 : ${item.dueDate}`}</CCol>
-                </CCardText>
+                <CCol>{`참가 가능 인원 : ${item.capacity}`}</CCol>
+                <CCol>{`점수 : ${item.maxScore}`}</CCol>
+                <CCol>{`시작날짜 : ${item.startDate}`}</CCol>
+                <CCol>{`마감날짜 : ${item.dueDate}`}</CCol>
                 <CDropdown alignment={{ lg: 'end' }}>
                   <CDropdownToggle color="transparent" caret={false}>
                     <CIcon icon={cilOptions} className="text-white" />
@@ -198,7 +177,7 @@ const Dashboard = () => {
                     <CDropdownItem href="#" onClick={(e) => openQuizModal(e, item)}>
                       퀴즈 업데이트
                     </CDropdownItem>
-                    {item.isQuestionsCreated === true ? (
+                    {item.isQuestionsCreated !== true ? (
                       <CDropdownItem href="#" onClick={(e) => createQuestion(e, item.quizId)}>
                         문제 생성
                       </CDropdownItem>
@@ -237,7 +216,7 @@ const Dashboard = () => {
               aria-describedby="exampleFormControlInputHelpInline"
             />
             <CFormInput
-              type="date"
+              type="datetime-local"
               id="startDate"
               label="시작날짜"
               defaultValue={quizModal.startDate}
@@ -245,7 +224,7 @@ const Dashboard = () => {
               aria-describedby="exampleFormControlInputHelpInline"
             />
             <CFormInput
-              type="date"
+              type="datetime-local"
               id="dueDate"
               label="마감날짜"
               defaultValue={quizModal.dueDate}
