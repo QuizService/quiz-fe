@@ -33,6 +33,7 @@ import CIcon from '@coreui/icons-react'
 import { cilOptions } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 import { array } from 'prop-types'
+import { api } from '../../config/CustomAxios'
 
 const QuizView = () => {
   const params = useParams()
@@ -49,66 +50,37 @@ const QuizView = () => {
   const [answers, setAnswers] = useState([])
   const [checkArr, setCheckArr] = useState([])
 
-  const quizInfo = {
-    quizId: 1,
-    title: 'title1',
-    maxScore: 100,
-    startDate: '2024-10-01',
-    dueDate: '2024-10-30',
-    created: '2024-04-22',
+  const getQuizInfo = async () => {
+    const endPoint = params.endpoint
+    try {
+      const response = await api.get(`/api/v1/quiz/form/${endPoint}`)
+      const data = response.data.data
+      setQuiz(data)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-  const questionArr = [
-    {
-      questionId: '1',
-      title: 'title1',
-      score: 10,
-      questionType: 'M',
-      choicesResponseDtos: [
-        { seq: 1, title: 't1' },
-        { seq: 2, title: 't2' },
-        { seq: 3, title: 't3' },
-        { seq: 4, title: 't4' },
-        { seq: 5, title: 't5' },
-      ],
-    },
-    {
-      questionId: '2',
-      title: 'title2',
-      score: 10,
-      questionType: 'S',
-      choicesResponseDtos: [],
-    },
-    {
-      questionId: '3',
-      title: 'title3',
-      score: 10,
-      questionType: 'M',
-      choicesResponseDtos: [
-        { seq: 1, title: 't1' },
-        { seq: 2, title: 't2' },
-        { seq: 3, title: 't3' },
-        { seq: 4, title: 't4' },
-        { seq: 5, title: 't5' },
-      ],
-    },
-  ]
-  const qArr = []
-
-  useEffect(() => {
+  const getQuestionsInfo = async () => {
     const endPoint = params.endpoint
-    setQuiz(quizInfo)
-    for (let i = 0; i < questionArr.length; i++) {
-      qArr.push(questionArr[i])
+    try {
+      const response = await api.get(`/api/v1/questions/form/${endPoint}`)
+      const data = response.data.data
+      setQuestions(data)
+      await getCheckedArr(data)
+    } catch (err) {
+      console.log(err)
     }
-    setQuestions(qArr)
+  }
+
+  const getCheckedArr = async (questions) => {
     const answersArr = []
     const checkedArr = []
-    for (let i = 0; i < questionArr.length; i++) {
+    for (let i = 0; i < questions.length; i++) {
       answersArr.push({
-        questionId: questionArr[i].questionId,
+        questionId: questions[i].questionId,
         sequence: i + 1,
-        questionType: questionArr[i].questionType,
+        questionType: questions[i].questionType,
         choices: [
           { id: 0, isAnswer: false },
           { id: 1, isAnswer: false },
@@ -122,7 +94,11 @@ const QuizView = () => {
     }
     setAnswers(answersArr)
     setCheckArr(checkedArr)
-    console.log(checkedArr)
+  }
+
+  useEffect(() => {
+    getQuizInfo()
+    getQuestionsInfo()
   }, [])
 
   const isChecked = (e, idx, id) => {
@@ -159,7 +135,7 @@ const QuizView = () => {
     setAnswers(newAnswerArr)
   }
 
-  const submit = () => {
+  const submit = async () => {
     console.log(answers)
     const resultArr = []
     for (let i = 0; i < answers.length; i++) {
@@ -168,20 +144,27 @@ const QuizView = () => {
         const choicesArr = answers[i].choices
         for (let j = 0; j < choicesArr.length; j++) {
           if (choicesArr[j].isAnswer === true) {
-            choiceArr.push(j)
+            choiceArr.push(j + 1)
           }
         }
       }
 
       const result = {
         questionId: answers[i].questionId,
-        sequence: answers[i].sequence + 1,
+        sequence: answers[i].sequence,
         choices: choiceArr,
         answer: answers[i].answer,
       }
       resultArr.push(result)
     }
-    console.log(resultArr)
+    try {
+      const response = await api.patch(`/api/v1/participant_info/${quiz.quizId}`, {
+        responses: resultArr,
+      })
+      console.log(response)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return (

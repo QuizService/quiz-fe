@@ -126,7 +126,7 @@ const Quiz = () => {
       }
       const res = await api.post(`/api/v1/questions/${quizId}`, questionIntegratedDto)
       console.log(res)
-      await navigate('/dashboard')
+      navigate('/dashboard')
     } catch (err) {
       console.log(err)
     }

@@ -29,7 +29,9 @@ import { api } from '../../config/CustomAxios'
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const [visible, setVisible] = useState(false)
+  const [showQuizUpdateModal, setShowQuizUpdateModal] = useState(false)
+  const [showQuizUrl, setShowQuizUrl] = useState(false)
+  const [quizUrl, setQuizUrl] = useState('')
   const [quizModal, setQuizModal] = useState({
     quizId: 0,
     capacity: 0,
@@ -81,7 +83,7 @@ const Dashboard = () => {
   const [dueDate, setDueDate] = useState('')
 
   const openQuizModal = (e, quiz) => {
-    setVisible(!visible)
+    setShowQuizUpdateModal(!showQuizUpdateModal)
     console.log(quiz)
     setQuizModal({
       quizId: quiz.quizId,
@@ -115,7 +117,7 @@ const Dashboard = () => {
       console.error('error : ', err)
     }
 
-    setVisible(false)
+    setShowQuizUpdateModal(false)
   }
 
   const createQuestion = (e, quizId) => {
@@ -133,6 +135,13 @@ const Dashboard = () => {
         quizId: quizId,
       },
     })
+  }
+
+  const getQuizUrl = async (e, item) => {
+    setShowQuizUrl(true)
+    const response = await api.get(`/api/v1/quiz/endpoint/${item.quizId}`)
+    const data = response.data.data
+    setQuizUrl(`http://localhost:3000/wait/${data}`)
   }
 
   const changeTitle = (e) => {
@@ -186,6 +195,9 @@ const Dashboard = () => {
                         문제 업데이트
                       </CDropdownItem>
                     )}
+                    <CDropdownItem href="#" onClick={(e) => getQuizUrl(e, item)}>
+                      퀴즈 URL 공유
+                    </CDropdownItem>
                   </CDropdownMenu>
                 </CDropdown>
               </CCardBody>
@@ -193,11 +205,11 @@ const Dashboard = () => {
           </CCol>
         ))}
         <CModal
-          visible={visible}
-          onClose={() => setVisible(false)}
+          visible={showQuizUpdateModal}
+          onClose={() => setShowQuizUpdateModal(false)}
           aria-labelledby="LiveDemoExampleLabel"
         >
-          <CModalHeader onClose={() => setVisible(false)}></CModalHeader>
+          <CModalHeader onClose={() => setShowQuizUpdateModal(false)}></CModalHeader>
           <CModalBody>
             <CFormInput
               type="text"
@@ -233,11 +245,24 @@ const Dashboard = () => {
             />
           </CModalBody>
           <CModalFooter>
-            <CButton color="secondary" onClick={() => setVisible(false)}>
+            <CButton color="secondary" onClick={() => setShowQuizUpdateModal(false)}>
               Close
             </CButton>
             <CButton color="primary" onClick={(e) => updateQuiz(e, quizModal.quizId)}>
               Save changes
+            </CButton>
+          </CModalFooter>
+        </CModal>
+        <CModal
+          visible={showQuizUrl}
+          onClose={() => setShowQuizUrl(false)}
+          aria-labelledby="LiveDemoExampleLabel"
+        >
+          <CModalHeader onClose={() => setShowQuizUrl(false)}></CModalHeader>
+          <CModalBody>{quizUrl}</CModalBody>
+          <CModalFooter>
+            <CButton color="secondary" onClick={() => setShowQuizUrl(false)}>
+              Close
             </CButton>
           </CModalFooter>
         </CModal>

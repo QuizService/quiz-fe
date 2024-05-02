@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   CCard,
   CCardImage,
@@ -25,13 +25,14 @@ import {
   CFormTextarea,
 } from '@coreui/react'
 
-import { useNavigate, useLocation } from 'react-router-dom'
 import { array } from 'prop-types'
+import { api } from '../../config/CustomAxios'
 
 const QuizEdit = () => {
   const navigate = useNavigate()
-  const { state } = useLocation()
-  const { quizId } = state
+  const params = useParams()
+  const quizId = params.quizId
+  const [removeQuestionsIdArr, setRemoveQuestionsIdArr] = useState([])
 
   const [quiz, setQuiz] = useState({
     quizId: 0,
@@ -44,67 +45,65 @@ const QuizEdit = () => {
   const [questions, setQuestions] = useState([])
   const [visible, setVisible] = useState(false)
 
-  const quizInfo = {
-    quizId: 1,
-    title: 'title1',
-    maxScore: 100,
-    startDate: '2024-10-01',
-    dueDate: '2024-10-30',
-    created: '2024-04-22',
+  const getQuestionsInfo = async () => {
+    const qArr = []
+    try {
+      const res = await api.get(`/api/v1/questions/${quizId}`)
+      const data = res.data.data
+      for (let i = 0; i < data.length; i++) {
+        const choices = data[i].choicesResponseDtos
+
+        qArr.push({
+          questionId: data[i].questionId,
+          title: data[i].title,
+          score: data[i].score,
+          questionType: data[i].questionType,
+          choicesResponseDtos:
+            data[i].questionType === 'S'
+              ? [
+                  { seq: 1, title: '', isAnswer: false },
+                  { seq: 2, title: '', isAnswer: false },
+                  { seq: 3, title: '', isAnswer: false },
+                  { seq: 4, title: '', isAnswer: false },
+                  { seq: 5, title: '', isAnswer: false },
+                ]
+              : [
+                  { seq: choices[0].seq, title: choices[0].title, isAnswer: choices[0].answer },
+                  { seq: choices[1].seq, title: choices[1].title, isAnswer: choices[1].answer },
+                  { seq: choices[2].seq, title: choices[2].title, isAnswer: choices[2].answer },
+                  { seq: choices[3].seq, title: choices[3].title, isAnswer: choices[3].answer },
+                  { seq: choices[4].seq, title: choices[4].title, isAnswer: choices[4].answer },
+                ],
+          answer: data[i].questionType === 'M' ? '' : data[i].answer,
+        })
+      }
+      setQuestions(qArr)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-  const questionArr = [
-    {
-      questionId: '1',
-      title: 'title1',
-      score: 10,
-      questionType: 'M',
-      choicesResponseDtos: [
-        { seq: 1, title: 't1', isAnswer: true },
-        { seq: 2, title: 't2', isAnswer: false },
-        { seq: 3, title: 't3', isAnswer: false },
-        { seq: 4, title: 't4', isAnswer: true },
-        { seq: 5, title: 't5', isAnswer: false },
-      ],
-      answer: '',
-    },
-    {
-      questionId: '2',
-      title: 'title2',
-      score: 10,
-      questionType: 'S',
-      choicesResponseDtos: [
-        { seq: 1, title: '', isAnswer: false },
-        { seq: 2, title: '', isAnswer: false },
-        { seq: 3, title: '', isAnswer: false },
-        { seq: 4, title: '', isAnswer: false },
-        { seq: 5, title: '', isAnswer: false },
-      ],
-      answer: 'aaa',
-    },
-    {
-      questionId: '3',
-      title: 'title3',
-      score: 10,
-      questionType: 'M',
-      choicesResponseDtos: [
-        { seq: 1, title: 't1', isAnswer: false },
-        { seq: 2, title: 't2', isAnswer: true },
-        { seq: 3, title: 't3', isAnswer: false },
-        { seq: 4, title: 't4', isAnswer: false },
-        { seq: 5, title: 't5', isAnswer: false },
-      ],
-      answer: '',
-    },
-  ]
-  const qArr = []
+  const getQuizInfo = async () => {
+    try {
+      const response = await api.get(`/api/v1/quiz/${quizId}`)
+      const data = response.data.data
+      const quizInfo = {
+        quizId: data.quizId,
+        title: data.title,
+        maxScore: data.maxScore,
+        startDate: data.startDate,
+        dueDate: data.dueDate,
+        created: data.created,
+      }
+      setQuiz(quizInfo)
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   useEffect(() => {
-    setQuiz(quizInfo)
-    for (let i = 0; i < questionArr.length; i++) {
-      qArr.push(questionArr[i])
-    }
-    setQuestions(qArr)
+    getQuestionsInfo()
+    getQuizInfo()
   }, [])
 
   const isChecked = (e, idx, id) => {
@@ -152,7 +151,12 @@ const QuizEdit = () => {
   }
 
   const removeForm = (e, idx) => {
+    const removeQuestions = questions.filter((item, index) => index === idx)
     const newQuestionArr = questions.filter((item, index) => index !== idx)
+    if (removeQuestions[0].questionId !== '') {
+      console.log(removeQuestions[0].questionId)
+      setRemoveQuestionsIdArr((item) => [...item, removeQuestions[0].questionId])
+    }
 
     setQuestions(newQuestionArr)
   }
@@ -177,7 +181,7 @@ const QuizEdit = () => {
     ])
   }
 
-  const submit = () => {
+  const submit = async () => {
     const resultArr = []
 
     for (let i = 0; i < questions.length; i++) {
@@ -194,7 +198,7 @@ const QuizEdit = () => {
         }
       }
       const result = {
-        questionId: item.questionId,
+        questionId: item.questionId === '' ? null : item.questionId,
         title: item.title,
         score: item.score,
         sequence: i + 1,
@@ -204,7 +208,16 @@ const QuizEdit = () => {
       }
       resultArr.push(result)
     }
-    console.log(resultArr)
+    try {
+      console.log(resultArr)
+      const request = { questionRequestDtos: resultArr, removeQuestionIds: removeQuestionsIdArr }
+      const response = await api.patch(`/api/v1/questions/${quizId}`, request)
+      console.log(response.status)
+
+      navigate('/dashboard')
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const openModal = (e) => {

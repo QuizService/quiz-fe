@@ -19,8 +19,11 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
+  const navigate = useNavigate()
+
   const onGoogleSignIn = async (res) => {
     const { credential } = res
     const result = await axios.post(
@@ -40,6 +43,7 @@ const Login = () => {
     const refreshToken = result.headers.refresh
 
     setTokenAtCookies(accessToken, refreshToken)
+    navigate('/dashboard')
   }
 
   return (
