@@ -9,6 +9,7 @@ import {
   CDropdownToggle,
   CHeader,
   CHeaderNav,
+  CImage,
   CHeaderToggler,
   CNavLink,
   CNavItem,
@@ -25,39 +26,84 @@ import CIcon from '@coreui/icons-react'
 import { cilContrast, cilMoon, cilSun } from '@coreui/icons'
 import { logo } from 'src/assets/brand/logo'
 import { AppHeaderDropdown } from './header/index'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { api } from '../config/CustomAxios'
 
 const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
   const location = useLocation()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
   const [visible, setVisible] = useState(false)
-  // const [title, setTitle] = useState('')
-  // const [capacity, setCapacity] = useState(0)
-  // const [startDate, setStartDate] = useState('')
-  // const [dueDate, setDueDate] = useState('')
+  const [showInviteCode, setShowInviteCode] = useState(false)
+  const [title, setTitle] = useState('')
+  const [capacity, setCapacity] = useState(0)
+  const [startDate, setStartDate] = useState('')
+  const [dueDate, setDueDate] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
 
-  // const changeTitle = (e) => {
-  //   console.log(e.target.value)
-  //   setTitle(e.target.value)
-  // }
-  // const changeCapacity = (e) => {
-  //   setCapacity(e.target.value)
-  // }
-  // const changeStartDate = (e) => {
-  //   setStartDate(e.target.value)
-  // }
-  // const changeDueDate = (e) => {
-  //   setDueDate(e.target.value)
-  // }
+  const changeTitle = (e) => {
+    console.log(e.target.value)
+    setTitle(e.target.value)
+  }
+  const changeCapacity = (e) => {
+    setCapacity(e.target.value)
+  }
+  const changeStartDate = (e) => {
+    const st = e.target.value
+    if (st !== null && st !== '') {
+      const tmpSt = st.split('T')
+      const start = tmpSt[0] + ' ' + tmpSt[1] + ':00'
+      setStartDate(start)
+    }
+  }
+  const changeDueDate = (e) => {
+    const dt = e.target.value
+    if (dt !== null && dt !== '') {
+      const tmpDt = dt.split('T')
+      const due = tmpDt[0] + ' ' + tmpDt[1] + ':00'
+      setDueDate(due)
+    }
+  }
 
-  // const createQuiz = () => {
-  //   console.log('save quiz')
-  //   setVisible(false)
-  // }
+  const createQuiz = async () => {
+    console.log('save quiz')
+    try {
+      const response = await api.post(`/api/v1/quiz`, {
+        title: title,
+        capacity: capacity,
+        startDate: startDate,
+        dueDate: dueDate,
+      })
+      if (response.status === 200) {
+        console.log('save quiz success')
+        setTitle('')
+        setCapacity(0)
+        setStartDate('')
+        setDueDate('')
+      }
+    } catch (err) {
+      console.log(err)
+    }
+    setVisible(false)
+  }
+
+  const changeInviteCode = (e) => {
+    console.log(e.target.value)
+    setInviteCode(e.target.value)
+  }
+
+  const goToQuiz = (e) => {
+    setShowInviteCode(false)
+    navigate(`/wait/${inviteCode}`, {
+      state: {
+        endPoint: inviteCode,
+      },
+    })
+  }
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -70,14 +116,17 @@ const AppHeader = () => {
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
       <CContainer className="border-bottom px-4" fluid>
         <CNavLink to="/dashboard" as={NavLink}>
-          <CIcon icon={logo} height={32} />
+          <CImage rounded src="/icons8-퀴즈-cute-outline-32.png" width={32} height={32} />
         </CNavLink>
         <CHeaderNav className="d-none d-md-flex">
           <CButton color="secondary" variant="ghost">
             {location.pathname === '/dashboard' && (
-              <CNavLink href="#" onClick={() => setVisible(!visible)}>
-                퀴즈 생성
-              </CNavLink>
+              <CNavLink onClick={() => setVisible(!visible)}>퀴즈 생성</CNavLink>
+            )}
+          </CButton>
+          <CButton color="secondary" variant="ghost">
+            {location.pathname === '/dashboard' && (
+              <CNavLink onClick={() => setShowInviteCode(!showInviteCode)}>초대 코드 입력</CNavLink>
             )}
           </CButton>
         </CHeaderNav>
@@ -133,7 +182,7 @@ const AppHeader = () => {
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      {/* <CModal
+      <CModal
         visible={visible}
         onClose={() => setVisible(false)}
         aria-labelledby="LiveDemoExampleLabel"
@@ -155,14 +204,14 @@ const AppHeader = () => {
             aria-describedby="exampleFormControlInputHelpInline"
           />
           <CFormInput
-            type="date"
+            type="datetime-local"
             id="startDate"
             label="startDate"
             onChange={changeStartDate}
             aria-describedby="exampleFormControlInputHelpInline"
           />
           <CFormInput
-            type="date"
+            type="datetime-local"
             id="dueDate"
             label="dueDate"
             onChange={changeDueDate}
@@ -177,7 +226,31 @@ const AppHeader = () => {
             Save changes
           </CButton>
         </CModalFooter>
-      </CModal> */}
+      </CModal>
+      <CModal
+        visible={showInviteCode}
+        onClose={() => setShowInviteCode(false)}
+        aria-labelledby="LiveDemoExampleLabel"
+      >
+        <CModalHeader onClose={() => setShowInviteCode(false)}></CModalHeader>
+        <CModalBody>
+          <CFormInput
+            type="text"
+            id="inviteCode"
+            label="초대 코드"
+            onChange={changeInviteCode}
+            aria-describedby="exampleFormControlInputHelpInline"
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setShowInviteCode(false)}>
+            Close
+          </CButton>
+          <CButton color="primary" onClick={(e) => goToQuiz(e)}>
+            이동
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CHeader>
   )
 }

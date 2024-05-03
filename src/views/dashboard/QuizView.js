@@ -1,42 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   CCard,
-  CCardImage,
   CCardBody,
   CCardTitle,
-  CCardText,
   CCardSubtitle,
   CInputGroup,
   CInputGroupText,
   CFormCheck,
   CButton,
-  CDropdownToggle,
-  CDropdown,
-  CDropdownItem,
-  CDropdownDivider,
-  CDropdownMenu,
-  CRow,
   CCol,
-  CModal,
-  CModalHeader,
-  CModalTitle,
-  CModalBody,
-  CModalFooter,
   CFormInput,
   CForm,
   CCallout,
   CFormTextarea,
 } from '@coreui/react'
 
-import CIcon from '@coreui/icons-react'
-import { cilOptions } from '@coreui/icons'
-import { useNavigate } from 'react-router-dom'
-import { array } from 'prop-types'
 import { api } from '../../config/CustomAxios'
 
 const QuizView = () => {
   const params = useParams()
+  const navigate = useNavigate()
   console.log(params)
   const [quiz, setQuiz] = useState({
     quizId: 0,
@@ -162,6 +146,11 @@ const QuizView = () => {
         responses: resultArr,
       })
       console.log(response)
+      navigate(`/quiz/rank/${quiz.quizId}`, {
+        state: {
+          quizId: quiz.quizId,
+        },
+      })
     } catch (err) {
       console.log(err)
     }

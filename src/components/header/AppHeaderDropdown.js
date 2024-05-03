@@ -9,7 +9,7 @@ import {
   CDropdownToggle,
 } from '@coreui/react'
 
-import avatar8 from './../../assets/images/avatars/user.png'
+import userImage from './../../assets/images/avatars/user.png'
 import { api } from '../../config/CustomAxios'
 
 const AppHeaderDropdown = () => {
@@ -34,7 +34,7 @@ const AppHeaderDropdown = () => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src={profile === '' ? avatar8 : profile} size="md" />
+        <CAvatar src={profile === '' ? userImage : profile} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>

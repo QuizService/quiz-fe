@@ -141,7 +141,7 @@ const Dashboard = () => {
     setShowQuizUrl(true)
     const response = await api.get(`/api/v1/quiz/endpoint/${item.quizId}`)
     const data = response.data.data
-    setQuizUrl(`http://localhost:3000/wait/${data}`)
+    setQuizUrl(data)
   }
 
   const changeTitle = (e) => {
@@ -196,7 +196,7 @@ const Dashboard = () => {
                       </CDropdownItem>
                     )}
                     <CDropdownItem href="#" onClick={(e) => getQuizUrl(e, item)}>
-                      퀴즈 URL 공유
+                      퀴즈 초대코드 공유
                     </CDropdownItem>
                   </CDropdownMenu>
                 </CDropdown>
@@ -258,7 +258,7 @@ const Dashboard = () => {
           onClose={() => setShowQuizUrl(false)}
           aria-labelledby="LiveDemoExampleLabel"
         >
-          <CModalHeader onClose={() => setShowQuizUrl(false)}></CModalHeader>
+          <CModalHeader onClose={() => setShowQuizUrl(false)}>초대 코드</CModalHeader>
           <CModalBody>{quizUrl}</CModalBody>
           <CModalFooter>
             <CButton color="secondary" onClick={() => setShowQuizUrl(false)}>

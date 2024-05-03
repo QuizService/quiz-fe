@@ -9,6 +9,8 @@ const QuizEdit = React.lazy(() => import('./views/dashboard/QuizEdit'))
 
 const Waiting = React.lazy(() => import('./views/dashboard/queue/Waiting'))
 
+const QuizRank = React.lazy(() => import('./views/dashboard/QuizRank'))
+
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
@@ -17,6 +19,7 @@ const routes = [
   { path: '/quiz-edit/:quizId', name: 'QuizEdit', element: QuizEdit },
   { path: '/quiz/:quizId', name: 'Quiz', element: Quiz },
   { path: '/wait/:endpoint', name: 'Waiting', element: Waiting },
+  { path: '/quiz/rank/:quizId', name: 'QuizRank', element: QuizRank },
 ]
 
 export default routes
